@@ -119,13 +119,16 @@ def get_config(args):
             cfg['ext']+='%s=%s\n' % (ext, extensions[ext])
 
     # Factorize alt into SAN
-    if cfg.get('alt'):
+    if cfg['command'] == 'www' or cfg.get('alt'):
         cfg['ext']+='''
-subjectAltName=@alt_names
-[alt_names]
+            subjectAltName=@alt_names
+            [alt_names]
 '''
-        for i in range(len(cfg['alt'])):
-            cfg['ext']+='DNS.%d = %s\n' % (i+1, cfg['alt'][i])
+        if cfg['command'] == 'www':
+            cfg['ext']+='DNS = %s\n' % cfg['cn']
+        if cfg.get('alt'):
+            for i in range(len(cfg['alt'])):
+                cfg['ext']+='DNS.%d = %s\n' % (i+1, cfg['alt'][i])
 
     f=open(cfg['cn']+'.cnf', 'w')
     for line in (cfg['ext']).split('\n'):
