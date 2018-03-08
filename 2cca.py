@@ -22,7 +22,7 @@ defaults={
         'days': 3648,
         'extensions': {
             'basicConstraints': 'critical,CA:false',
-            'keyUsage': 'digitalSignature, keyEncipherment',
+            'keyUsage': 'critical,digitalSignature,keyEncipherment',
             'extendedKeyUsage':'serverAuth'
         }
     },
@@ -30,7 +30,7 @@ defaults={
         'days': 730,
         'extensions': {
             'basicConstraints': 'critical,CA:false',
-            'keyUsage': 'digitalSignature',
+            'keyUsage': 'critical,digitalSignature',
             'extendedKeyUsage':'clientAuth'
         }
     },
@@ -38,8 +38,8 @@ defaults={
         'days': 730,
         'extensions': {
             'basicConstraints': 'critical,CA:false',
-            'keyUsage': 'digitalSignature, keyEncipherment',
-            'extendedKeyUsage': 'serverAuth, clientAuth'
+            'keyUsage': 'critical,digitalSignature,keyEncipherment',
+            'extendedKeyUsage': 'serverAuth,clientAuth'
         }
     }
 }
