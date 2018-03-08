@@ -6,7 +6,6 @@ import sys
 defaults={
     'root': {
         'days':3650,
-        'ou':'RootCA',
         'extensions': {
             'basicConstraints': 'critical,CA:true,pathlen:1',
             'keyUsage': 'critical,keyCertSign,cRLSign'
@@ -14,7 +13,6 @@ defaults={
     },
     'sub':  {
         'days':3649,
-        'ou':'CA',
         'extensions': {
             'basicConstraints': 'critical,CA:true,pathlen:1',
             'keyUsage': 'critical,keyCertSign,cRLSign'
@@ -22,7 +20,6 @@ defaults={
     },
     'server': {
         'days': 3648,
-        'ou':'server',
         'extensions': {
             'basicConstraints': 'critical,CA:false',
             'keyUsage': 'digitalSignature, keyEncipherment',
@@ -31,7 +28,6 @@ defaults={
     },
     'client': {
         'days': 730,
-        'ou': 'client',
         'extensions': {
             'basicConstraints': 'critical,CA:false',
             'keyUsage': 'digitalSignature',
@@ -40,7 +36,6 @@ defaults={
     },
     'www': {
         'days': 730,
-        'ou': 'server',
         'extensions': {
             'basicConstraints': 'critical,CA:false',
             'keyUsage': 'digitalSignature, keyEncipherment',
@@ -96,8 +91,6 @@ def get_config(args):
             raise SystemExit
         if cfg.get('days')==None:
             cfg['days']=defaults[cmd]['days']
-        if cfg.get('ou')==None:
-            cfg['ou']=defaults[cmd]['ou']
     if cmd in ['sub', 'server', 'client', 'www', 'crl', 'revoke']:
         if cfg.get('ca')==None:
             print 'Specify a CA to use for this operation with ca=NAME'
