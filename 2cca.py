@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
 import sys
@@ -45,7 +45,7 @@ defaults={
 }
 
 def run(cmd):
-    print cmd
+    print(cmd)
     os.system(cmd)
 
 def openssl_ecc_supported():
@@ -77,23 +77,23 @@ def get_config(args):
             if not ec_supported:
                 ec_supported = openssl_ecc_supported()
             if not fields[1] in ec_supported:
-                print 'unsupported curve:', fields[1]
-                print 'supported curves:'
-                print ec_supported
+                print('unsupported curve:', fields[1])
+                print('supported curves:')
+                print(ec_supported)
                 raise SystemExit
             cfg['ecc']=fields[1]
         else:
             cfg[fields[0].lower()]=fields[1]
     # Consistency checks
-    if cmd in defaults.keys():
+    if cmd in list(defaults.keys()):
         if cfg.get('cn')==None:
-            print 'Specify a common name with cn=NAME'
+            print('Specify a common name with cn=NAME')
             raise SystemExit
         if cfg.get('days')==None:
             cfg['days']=defaults[cmd]['days']
     if cmd in ['sub', 'server', 'client', 'www', 'crl', 'revoke']:
         if cfg.get('ca')==None:
-            print 'Specify a CA to use for this operation with ca=NAME'
+            print('Specify a CA to use for this operation with ca=NAME')
             raise SystemExit
     cfg['ext']='''
         [req]
@@ -110,8 +110,10 @@ def get_config(args):
     cfg['ext']+='''
         [v3]
         subjectKeyIdentifier = hash
-        authorityKeyIdentifier = keyid,issuer
 '''
+    if cfg['command'] == 'root':
+        cfg['ext']+='authorityKeyIdentifier = keyid,issuer\n'
+
     # Set extensions according to cert type
     if cfg['command'] in ['root', 'sub', 'server', 'client', 'www']:
         extensions = defaults[cfg['command']]['extensions']
@@ -125,7 +127,7 @@ def get_config(args):
             [alt_names]
 '''
         if cfg['command'] == 'www':
-            cfg['ext']+='DNS = %s\n' % cfg['cn']
+            cfg['ext']+='DNS.0 = %s\n' % cfg['cn']
         if cfg.get('alt'):
             for i in range(len(cfg['alt'])):
                 cfg['ext']+='DNS.%d = %s\n' % (i+1, cfg['alt'][i])
@@ -142,7 +144,7 @@ def generate_serial():
     f.close()
     num='0x2cca'
     for r in data:
-        num+='%02x' % ord(r)
+        num+='%02x' % r
     return num
 
 def genkey(cfg):
@@ -199,14 +201,14 @@ def generate_identity(cfg):
     os.remove('%(cn)s.csr' % cfg)
 
 def crl_show(cfg):
-    print cfg
+    print(cfg)
 
 def revoke(cfg):
-    print cfg
+    print(cfg)
 
 if __name__=="__main__":
     if len(sys.argv)==1:
-        print '''
+        print('''
     Available commands:
 
     2cca root       generate root identity
@@ -230,7 +232,7 @@ if __name__=="__main__":
 
     2cca crl        show crl
     2cca revoke
-'''
+''')
         raise SystemExit
 
     {'root':    generate_root,
