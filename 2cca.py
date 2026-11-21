@@ -155,7 +155,7 @@ def genkey(cfg):
     elif cfg.get('rsa'):
         keycmd='openssl genrsa -out "%(cn)s.key" %(rsa)s' % cfg
     else:
-        keycmd='openssl genrsa -out "%(cn)s.key" 2048' % cfg
+        keycmd='openssl ecparam -genkey -name prime256v1 -out "%(cn)s.key"' % cfg
     run(keycmd)
 
 def gencsr(cfg):
