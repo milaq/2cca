@@ -231,26 +231,26 @@ if __name__=="__main__":
         print('''
     Available commands:
 
-    2cca root       generate root identity
-    2cca sub        generate sub-CA identity
-    2cca server     generate openvpn server identity
-    2cca client     generate openvpn client identity
-    2cca www        generate web server identity
+    2cca root      generate root identity
+    2cca sub       generate sub-CA identity
+    2cca server    generate openvpn server identity
+    2cca client    generate openvpn client identity
+    2cca www       generate web server identity
 
     with params:
-        CN=name     mandatory
-         O=name     mandatory for root, else inherited from CA
-        OU=name     optional
-         C=country  optional
-         L=locality optional
-        ST=state    optional
-     email=address  optional
-       alt=name1 alt=name2 ...  optional alt names for www
-      days=value    optional
-       ecc=curve    curve name for ECC
-       rsa=size     key size for RSA keys
-        p12         also export as PKCS#12 (client only)
-    p12pass=pass    PKCS#12 export password (default: prompt)
+      CN=name          mandatory
+      O=name           mandatory for root, else inherited from CA
+      OU=name          optional
+      C=country        optional
+      L=locality       optional
+      ST=state         optional
+      email=address    optional
+      alt=name1        optional alt names for www (can be appended multiple times, e.g. alt=name1 alt=name2)
+      days=value       optional
+      ecc=curve        optional curve name for ECC (default: prime256v1)
+      rsa=size         generate RSA keys instead of ECC and set key size
+      p12              optional for client, also export as PKCS#12
+      p12pass=pass     optional for client, PKCS#12 export password (default: prompt)
 
     2cca crl        show crl
     2cca revoke
