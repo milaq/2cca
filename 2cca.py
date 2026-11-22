@@ -95,6 +95,9 @@ def get_config(args):
         if cfg.get('ca')==None:
             print('Specify a CA to use for this operation with ca=NAME')
             raise SystemExit
+    # Filename base for this identity: CN with spaces replaced
+    if cfg.get('cn'):
+        cfg['fname']=cfg['cn'].replace(' ', '_')
     cfg['ext']='''
         [req]
         distinguished_name=subject
@@ -132,7 +135,7 @@ def get_config(args):
             for i in range(len(cfg['alt'])):
                 cfg['ext']+='DNS.%d = %s\n' % (i+1, cfg['alt'][i])
 
-    f=open(cfg['cn']+'.cnf', 'w')
+    f=open(cfg['fname']+'.cnf', 'w')
     for line in (cfg['ext']).split('\n'):
         f.write(line.strip()+'\n')
     f.close()
@@ -151,27 +154,27 @@ def genkey(cfg):
     # Generate key pair
     keycmd=''
     if cfg.get('ecc'):
-        keycmd='openssl ecparam -genkey -name %(ecc)s -out "%(cn)s.key"' % cfg
+        keycmd='openssl ecparam -genkey -name %(ecc)s -out "%(fname)s.key"' % cfg
     elif cfg.get('rsa'):
-        keycmd='openssl genrsa -out "%(cn)s.key" %(rsa)s' % cfg
+        keycmd='openssl genrsa -out "%(fname)s.key" %(rsa)s' % cfg
     else:
-        keycmd='openssl ecparam -genkey -name prime256v1 -out "%(cn)s.key"' % cfg
+        keycmd='openssl ecparam -genkey -name prime256v1 -out "%(fname)s.key"' % cfg
     run(keycmd)
 
 def gencsr(cfg):
-    cmd='openssl req -new -sha256 -key "%(cn)s.key" -out "%(cn)s.csr"' % cfg
-    cmd+=' -config "%(cn)s.cnf"' % cfg
+    cmd='openssl req -new -sha256 -key "%(fname)s.key" -out "%(fname)s.csr"' % cfg
+    cmd+=' -config "%(fname)s.cnf"' % cfg
     cmd+=' -extensions v3'
     run(cmd)
 
 def gencrt(cfg):
     cmd='openssl x509 -req -sha256'
     cmd+=' -CA "%(ca)s.crt" -CAkey "%(ca)s.key"' % cfg
-    cmd+=' -in "%(cn)s.csr" -out "%(cn)s.crt"' % cfg
+    cmd+=' -in "%(fname)s.csr" -out "%(fname)s.crt"' % cfg
     cmd+=' -set_serial %s' % generate_serial()
     if cfg.get('days'):
         cmd+=' -days %(days)s' % cfg
-    cmd+=' -extfile "%(cn)s.cnf"' % cfg
+    cmd+=' -extfile "%(fname)s.cnf"' % cfg
     cmd+=' -extensions v3'
     run(cmd)
 
@@ -179,15 +182,15 @@ def generate_root(cfg):
     # Generate key pair
     genkey(cfg)
     # Generate self-signed certificate
-    cmd='openssl req -new -x509 -key "%(cn)s.key"' % cfg
+    cmd='openssl req -new -x509 -key "%(fname)s.key"' % cfg
     cmd+=' -extensions v3'
-    cmd+=' -config "%(cn)s.cnf"' % cfg
+    cmd+=' -config "%(fname)s.cnf"' % cfg
     cmd+=' -sha256'
-    cmd+=' -out "%(cn)s.crt"' % cfg
+    cmd+=' -out "%(fname)s.crt"' % cfg
     cmd+=' -set_serial %s' % generate_serial()
     cmd+=' -days %(days)s' % cfg
     run(cmd)
-    #os.remove('%(cn)s.cnf' % cfg)
+    #os.remove('%(fname)s.cnf' % cfg)
 
 def generate_identity(cfg):
     # Generate key pair
@@ -197,8 +200,8 @@ def generate_identity(cfg):
     # Sign CSR with CA
     gencrt(cfg)
     # Delete temporary files
-    os.remove('%(cn)s.cnf' % cfg)
-    os.remove('%(cn)s.csr' % cfg)
+    os.remove('%(fname)s.cnf' % cfg)
+    os.remove('%(fname)s.csr' % cfg)
 
 def crl_show(cfg):
     print(cfg)
