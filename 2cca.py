@@ -44,8 +44,8 @@ defaults={
     }
 }
 
-def run(cmd):
-    print(cmd)
+def run(cmd, shown=None):
+    print(shown or cmd)
     os.system(cmd)
 
 def openssl_ecc_supported():
@@ -178,6 +178,20 @@ def gencrt(cfg):
     cmd+=' -extensions v3'
     run(cmd)
 
+def genp12(cfg):
+    cmd='openssl pkcs12 -export'
+    cmd+=' -inkey "%(fname)s.key"' % cfg
+    cmd+=' -in "%(fname)s.crt"' % cfg
+    cmd+=' -certfile "%(ca)s.crt"' % cfg
+    cmd+=' -name "%(cn)s"' % cfg
+    cmd+=' -out "%(fname)s.p12"' % cfg
+    if cfg.get('p12pass') is not None:
+        shown=cmd+' -passout "pass:***"'
+        cmd+=' -passout "pass:%(p12pass)s"' % cfg
+        run(cmd, shown)
+    else:
+        run(cmd)
+
 def generate_root(cfg):
     # Generate key pair
     genkey(cfg)
@@ -199,6 +213,9 @@ def generate_identity(cfg):
     gencsr(cfg)
     # Sign CSR with CA
     gencrt(cfg)
+    # Export as PKCS#12
+    if cfg.get('p12') and cfg['command']=='client':
+        genp12(cfg)
     # Delete temporary files
     os.remove('%(fname)s.cnf' % cfg)
     os.remove('%(fname)s.csr' % cfg)
@@ -232,6 +249,8 @@ if __name__=="__main__":
       days=value    optional
        ecc=curve    curve name for ECC
        rsa=size     key size for RSA keys
+        p12         also export as PKCS#12 (client only)
+    p12pass=pass    PKCS#12 export password (default: prompt)
 
     2cca crl        show crl
     2cca revoke
