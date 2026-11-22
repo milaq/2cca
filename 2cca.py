@@ -141,15 +141,6 @@ def get_config(args):
     f.close()
     return cfg
 
-def generate_serial():
-    f=open('/dev/urandom', 'rb')
-    data=f.read(14)
-    f.close()
-    num='0x2cca'
-    for r in data:
-        num+='%02x' % r
-    return num
-
 def genkey(cfg):
     # Generate key pair
     keycmd=''
@@ -171,7 +162,6 @@ def gencrt(cfg):
     cmd='openssl x509 -req -sha256'
     cmd+=' -CA "%(ca)s.crt" -CAkey "%(ca)s.key"' % cfg
     cmd+=' -in "%(fname)s.csr" -out "%(fname)s.crt"' % cfg
-    cmd+=' -set_serial %s' % generate_serial()
     if cfg.get('days'):
         cmd+=' -days %(days)s' % cfg
     cmd+=' -extfile "%(fname)s.cnf"' % cfg
@@ -201,7 +191,6 @@ def generate_root(cfg):
     cmd+=' -config "%(fname)s.cnf"' % cfg
     cmd+=' -sha256'
     cmd+=' -out "%(fname)s.crt"' % cfg
-    cmd+=' -set_serial %s' % generate_serial()
     cmd+=' -days %(days)s' % cfg
     run(cmd)
     #os.remove('%(fname)s.cnf' % cfg)
